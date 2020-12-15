@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1608046584 source:c:\users\5353i\documents\coding\chess\bitboard_mask_generator\main.cpp
+	<iostream>
+	<fstream>
+	<cmath>
+
