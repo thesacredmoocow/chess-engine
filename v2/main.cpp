@@ -24,6 +24,7 @@ float calcVal(boardState &b)
     {
         for(int j = 0; j < 8; j++)
         {
+            //cout << b.guards[WHITE][i][j];
             if(i >= 3 && i <= 4 && j >= 3 && j <= 4)
             {
                 centerPoints += centerBias*2*(b.guards[WHITE][i][j] - b.guards[BLACK][i][j]);
@@ -33,8 +34,14 @@ float calcVal(boardState &b)
                 centerPoints += centerBias*(b.guards[WHITE][i][j] - b.guards[BLACK][i][j]);
             }
         }
+        //cout << " ";
+        for(int j = 0; j < 8; j++)
+        {
+            //cout << b.guards[BLACK][i][j];
+        }
+        //cout << endl;
     }
-    return materialPoints + centerPoints;
+    return float(materialPoints) + centerPoints;
 }
 
 //helper function prototypes
@@ -80,7 +87,7 @@ void drawSquares(unsigned long long bb, ALLEGRO_COLOR color)
     }
 }
 
-void drawBoard(boardState &b)
+void drawChecker()
 {
     al_clear_to_color(al_map_rgb(64,64,64));
     for(int i = 0; i < 8; i++)
@@ -94,16 +101,11 @@ void drawBoard(boardState &b)
             }
         }
     }
-    for(int i = 0; i < 2; i++)
-    {
-        for(int j = 0; j < 7; j++)
-        {
-            for(int k = 0; k < b.piece[i][k].size(); k++)
-            {
-                //drawSquares(b.piece[i][j][k].second, al_map_rgb(80,200,80));
-            }
-        }
-    }
+}
+
+void drawBoard(boardState &b)
+{
+
     for(int i = 0; i < 2; i++)
     {
         for(int j = 0; j < 6; j++)
@@ -486,7 +488,7 @@ void generateMovements(boardState &b)
     }
     for(int i = 0; i < b.piece[BLACK][PAWN].size(); i++)
     {
-        b.piece[BLACK][PAWN][i].second = moveTables[BLACK][PAWN][b.piece[BLACK][PAWN][i].first.y][b.piece[BLACK][PAWN][i].first.x] ^ (moveTables[BLACK][PAWN][b.piece[BLACK][PAWN][i].first.y][b.piece[BLACK][PAWN][i].first.x] & (b.allPieces[BLACK] | b.allPieces[BLACK]));
+        b.piece[BLACK][PAWN][i].second = moveTables[BLACK][PAWN][b.piece[BLACK][PAWN][i].first.y][b.piece[BLACK][PAWN][i].first.x] ^ (moveTables[BLACK][PAWN][b.piece[BLACK][PAWN][i].first.y][b.piece[BLACK][PAWN][i].first.x] & (b.allPieces[BLACK] | b.allPieces[WHITE]));
         if(b.piece[BLACK][PAWN][i].first.y == 6 && b.piece[BLACK][PAWN][i].second && !(keys[b.piece[BLACK][PAWN][i].first.y-2][b.piece[BLACK][PAWN][i].first.x] & (b.allPieces[BLACK] | b.allPieces[BLACK])))
         {
             b.piece[BLACK][PAWN][i].second |= keys[b.piece[BLACK][PAWN][i].first.y-2][b.piece[BLACK][PAWN][i].first.x];
@@ -505,11 +507,17 @@ void generateMovements(boardState &b)
         b.piece[BLACK][PAWN_CAPTURE][i].second |= (moveTables[BLACK][PAWN_CAPTURE][b.piece[BLACK][PAWN][i].first.y][b.piece[BLACK][PAWN][i].first.x] & b.allPieces[WHITE]);
         b.guardTable[BLACK][PAWN][i] |= moveTables[BLACK][PAWN_CAPTURE][b.piece[BLACK][PAWN][i].first.y][b.piece[BLACK][PAWN][i].first.x];
     }
+    if(!b.piece[WHITE][KING].empty())
+    {
+        b.piece[WHITE][KING][0].second = moveTables[BLACK][KING][b.piece[WHITE][KING][0].first.y][b.piece[WHITE][KING][0].first.x] ^ (moveTables[WHITE][KING][b.piece[WHITE][KING][0].first.y][b.piece[WHITE][KING][0].first.x] & b.allPieces[WHITE]);
+        b.guardTable[WHITE][KING][0] |= moveTables[WHITE][KING][b.piece[WHITE][KING][0].first.y][b.piece[WHITE][KING][0].first.x];
+    }
+    if(!b.piece[BLACK][KING].empty())
+    {
+        b.piece[BLACK][KING][0].second = moveTables[BLACK][KING][b.piece[BLACK][KING][0].first.y][b.piece[BLACK][KING][0].first.x] ^ (moveTables[BLACK][KING][b.piece[BLACK][KING][0].first.y][b.piece[BLACK][KING][0].first.x] & b.allPieces[BLACK]);
+        b.guardTable[BLACK][KING][0] |= moveTables[BLACK][KING][b.piece[BLACK][KING][0].first.y][b.piece[BLACK][KING][0].first.x];
+    }
 
-    b.piece[WHITE][KING][0].second = moveTables[BLACK][KING][b.piece[WHITE][KING][0].first.y][b.piece[WHITE][KING][0].first.x] ^ (moveTables[WHITE][KING][b.piece[WHITE][KING][0].first.y][b.piece[WHITE][KING][0].first.x] & b.allPieces[WHITE]);
-    b.piece[BLACK][KING][0].second = moveTables[BLACK][KING][b.piece[BLACK][KING][0].first.y][b.piece[BLACK][KING][0].first.x] ^ (moveTables[BLACK][KING][b.piece[BLACK][KING][0].first.y][b.piece[BLACK][KING][0].first.x] & b.allPieces[BLACK]);
-    b.guardTable[WHITE][KING][0] |= moveTables[WHITE][KING][b.piece[WHITE][KING][0].first.y][b.piece[WHITE][KING][0].first.x];
-    b.guardTable[BLACK][KING][0] |= moveTables[BLACK][KING][b.piece[BLACK][KING][0].first.y][b.piece[BLACK][KING][0].first.x];
     for(int i = 0; i < b.piece[BLACK][BISHOP].size(); i++)
     {
         pair<unsigned long long, unsigned long long>p = generateBishopMovements(b, b.piece[BLACK][BISHOP][i].first, BLACK);
@@ -697,8 +705,6 @@ mov createMov(int color, int piece, int index, coord destination)
 
 void movePiece(boardState &b, mov currMove)
 {
-    unsigned long long bitSwitcher = keys[b.piece[currMove.color][currMove.piece][currMove.index].first.y][b.piece[currMove.color][currMove.piece][currMove.index].first.x] + keys[currMove.destination.y][currMove.destination.x];
-    b.allPieces[currMove.color] ^= bitSwitcher;
     b.piece[currMove.color][currMove.piece][currMove.index].first = currMove.destination;
     for(int i = 0; i < 7; i++)
     {
@@ -714,54 +720,96 @@ void movePiece(boardState &b, mov currMove)
             }
         }
     }
+
+    for(int i = 0; i < 2; i++)
+    {
+        b.allPieces[i] = 0;
+        for(int j = 0; j < 6; j++)
+        {
+            for(int k = 0; k < b.piece[i][j].size(); k++)
+            {
+                b.allPieces[i] |= keys[b.piece[i][j][k].first.y][b.piece[i][j][k].first.x];
+            }
+        }
+    }
     b.turn++;
 }
 
+void movePieceWithDraw(boardState &b, mov currMove)
+{
+    unsigned long long bitSwitcher = keys[b.piece[currMove.color][currMove.piece][currMove.index].first.y][b.piece[currMove.color][currMove.piece][currMove.index].first.x] + keys[currMove.destination.y][currMove.destination.x];
+    drawSquares(bitSwitcher, GREEN);
+    b.piece[currMove.color][currMove.piece][currMove.index].first = currMove.destination;
+    for(int i = 0; i < 7; i++)
+    {
+        for(int j = b.piece[1-currMove.color][i].size()-1; j >= 0; j--)
+        {
+            if((b.piece[1-currMove.color][i][j].first.x == currMove.destination.x) && (b.piece[1-currMove.color][i][j].first.y == currMove.destination.y))
+            {
+                b.piece[1-currMove.color][i].erase(b.piece[1-currMove.color][i].begin() + j);
+                if(i != 6)
+                {
+                    b.guardTable[1-currMove.color][i].erase(b.guardTable[1-currMove.color][i].begin() + j);
+                }
+            }
+        }
+    }
+
+    for(int i = 0; i < 2; i++)
+    {
+        b.allPieces[i] = 0;
+        for(int j = 0; j < 6; j++)
+        {
+            for(int k = 0; k < b.piece[i][j].size(); k++)
+            {
+                b.allPieces[i] |= keys[b.piece[i][j][k].first.y][b.piece[i][j][k].first.x];
+            }
+        }
+    }
+    b.turn++;
+}
 
 pair<mov, float> recursiveFind(int plyLeft, boardState &b)
 {
     int currColor = b.turn%2;
     if(plyLeft == 0)
     {
-        pair<mov, float> bestMove(createMov(0, 0, 0, toCoord(0, 0)), 600*currColor-300);
+        pair<mov, float> bestMove(createMov(0, 0, 0, toCoord(0, 0)), 400*currColor-200);
         vector<mov> possibleMoves;
-        generateMovements(b);
-        for(int i = 0; i < 8; i++)
+        //generateMovements(b);
+        for(int k = 0; k < 7; k++)
         {
-            for(int j = 0; j < 8; j++)
+            for(int a = 0; a < b.piece[currColor][k].size(); a++)
             {
-                for(int k = 0; k < 7; k++)
+                for(int i = 0; i < 8; i++)
                 {
-                    for(int a = 0; a < b.piece[currColor][k].size(); a++)
+                    for(int j = 0; j < 8; j++)
                     {
-                        if(keys[i][j] & b.piece[currColor][k][a].second)
+                        if(b.piece[currColor][k][a].second & keys[i][j])
                         {
-                            possibleMoves.push_back(createMov(currColor, max(5, k), a, toCoord(i,j)));
+                            boardState newBoard = b;
+                            mov currMove = createMov(currColor, min(5, k), a, toCoord(i,j));
+                            movePiece(newBoard, currMove);
+                            generateMovements(newBoard);
+                            if(b.guards[1-currColor][b.piece[currColor][KING][0].first.y][b.piece[currColor][KING][0].first.x] == 0)
+                            {
+                                float newScore = calcVal(newBoard);
+                                if(newScore > bestMove.second && currColor == WHITE)
+                                {
+                                    bestMove.second = newScore;
+                                    bestMove.first = currMove;
+                                }
+                                else if(newScore < bestMove.second && currColor == BLACK)
+                                {
+                                    bestMove.second = newScore;
+                                    bestMove.first = currMove;
+                                }
+                            }
+
                         }
                     }
                 }
             }
-        }
-        for(int i = 0; i < possibleMoves.size(); i++)
-        {
-            cout << b.piece[possibleMoves[i].color][possibleMoves[i].piece][possibleMoves[i].index].first.y << " " << b.piece[possibleMoves[i].color][possibleMoves[i].piece][possibleMoves[i].index].first.x << " " << possibleMoves[i].destination.y << " " << possibleMoves[i].destination.x << endl;
-        }
-        for(int i = 0; i < possibleMoves.size(); i++)
-        {
-            boardState newBoard = b;
-            movePiece(newBoard, possibleMoves[i]);
-            float newScore = calcVal(newBoard);
-            if(newScore > bestMove.second && currColor == WHITE)
-            {
-                bestMove.second = newScore;
-                bestMove.first = possibleMoves[i];
-            }
-            else if(newScore < bestMove.second && currColor == BLACK)
-            {
-                bestMove.second = newScore;
-                bestMove.first = possibleMoves[i];
-            }
-
         }
         return bestMove;
     }
@@ -769,40 +817,54 @@ pair<mov, float> recursiveFind(int plyLeft, boardState &b)
     {
         pair<mov, float> bestMove(createMov(0, 0, 0, toCoord(0, 0)), 600*currColor-300);
         vector<mov> possibleMoves;
-        generateMovements(b);
-        for(int i = 0; i < 8; i++)
+        //generateMovements(b);
+        for(int k = 0; k < 7; k++)
         {
-            for(int j = 0; j < 8; j++)
+            for(int a = 0; a < b.piece[currColor][k].size(); a++)
             {
-                for(int k = 0; k < 7; k++)
+                for(int i = 0; i < 8; i++)
                 {
-                    for(int a = 0; a < b.piece[currColor][k].size(); a++)
+                    for(int j = 0; j < 8; j++)
                     {
-                        if(keys[i][j] & b.piece[currColor][k][a].second)
+                        if(b.piece[currColor][k][a].second & keys[i][j])
                         {
-                            possibleMoves.push_back(createMov(currColor, max(5, k), a, toCoord(i,j)));
+                            //cout << b.piece[currColor][k][a].first.y << " " << b.piece[currColor][k][a].first.x << " " << i << " " << j << endl;
+                            mov currMove = createMov(currColor, min(5, k), a, toCoord(i,j));
+                            boardState newBoard = b;
+                            movePiece(newBoard, currMove);
+                            generateMovements(newBoard);
+                            if(newBoard.guards[1-currColor][newBoard.piece[currColor][KING][0].first.y][newBoard.piece[currColor][KING][0].first.x] == 0)
+                            {
+                                float newScore = recursiveFind(plyLeft-1, newBoard).second;
+                                if(newScore > bestMove.second && currColor == WHITE)
+                                {
+                                    bestMove.second = newScore;
+                                    bestMove.first = currMove;
+                                }
+                                else if(newScore < bestMove.second && currColor == BLACK)
+                                {
+                                    bestMove.second = newScore;
+                                    bestMove.first = currMove;
+                                }
+                            }
                         }
                     }
                 }
             }
         }
+        /*
         for(int i = 0; i < possibleMoves.size(); i++)
         {
             boardState newBoard = b;
-            movePiece(newBoard, possibleMoves[i]);
+
             float newScore = recursiveFind(plyLeft-1, newBoard).second;
-            if(newScore > bestMove.second && currColor == WHITE)
+            if(plyLeft == 2)
             {
-                bestMove.second = newScore;
-                bestMove.first = possibleMoves[i];
-            }
-            else if(newScore < bestMove.second && currColor == BLACK)
-            {
-                bestMove.second = newScore;
-                bestMove.first = possibleMoves[i];
+                cout << " " << b.piece[possibleMoves[i].color][possibleMoves[i].piece][possibleMoves[i].index].first.y << " " << b.piece[possibleMoves[i].color][possibleMoves[i].piece][possibleMoves[i].index].first.x << " " << possibleMoves[i].destination.y << " " << possibleMoves[i].destination.x << " " << newScore << endl;
             }
 
-        }
+
+        }*/
         return bestMove;
     }
 }
@@ -822,10 +884,17 @@ int main()
     generateMovements(b);
     while(1)
     {
+
+        generateMovements(b);
+        mov bestMove = recursiveFind(3, b).first;
+        drawChecker();
+        movePieceWithDraw(b, bestMove);
+        //drawSquares(b.allPieces[1], GREEN);
+        //drawSquares(b.allPieces[0], BLUE);
         drawBoard(b);
+        //
         al_flip_display();
-        mov bestMove = recursiveFind(0, b).first;
-        movePiece(b, bestMove);
+        cout << "hi" << endl;
     }
     /*
     drawBoard(b);

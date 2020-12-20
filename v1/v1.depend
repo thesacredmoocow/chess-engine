@@ -52,3 +52,57 @@
 1579667824 c:\users\5353i\documents\coding\chess\v1\window.h
 	"Header.h"
 
+1580853078 source:c:\users\5353i\documents\coding\chess\chess-engine\v1\andyallegro.cpp
+	"AndyAllegro.h"
+
+1579719354 c:\users\5353i\documents\coding\chess\chess-engine\v1\andyallegro.h
+	"Header.h"
+	"menu.h"
+	"button.h"
+
+1579668850 c:\users\5353i\documents\coding\chess\chess-engine\v1\header.h
+	<iostream>
+	<vector>
+	<stack>
+	<queue>
+	<chrono>
+	<cmath>
+	<map>
+	<allegro5/allegro.h>
+	<allegro5/allegro_image.h>
+	<allegro5/allegro_primitives.h>
+	<allegro5/allegro_font.h>
+	<allegro5/allegro_ttf.h>
+	<allegro5/allegro_native_dialog.h>
+	<allegro5/keyboard.h>
+	<allegro5/allegro_color.h>
+	"Settings.h"
+
+1579667028 c:\users\5353i\documents\coding\chess\chess-engine\v1\settings.h
+
+1580852882 c:\users\5353i\documents\coding\chess\chess-engine\v1\menu.h
+	"Header.h"
+	"button.h"
+
+1579720430 c:\users\5353i\documents\coding\chess\chess-engine\v1\button.h
+	"Header.h"
+
+1579720430 source:c:\users\5353i\documents\coding\chess\chess-engine\v1\button.cpp
+	"button.h"
+
+1608430847 source:c:\users\5353i\documents\coding\chess\chess-engine\v1\main.cpp
+	"AndyAllegro.h"
+	<iostream>
+	<vector>
+	<map>
+	<algorithm>
+
+1579720462 source:c:\users\5353i\documents\coding\chess\chess-engine\v1\menu.cpp
+	"menu.h"
+
+1579667824 source:c:\users\5353i\documents\coding\chess\chess-engine\v1\window.cpp
+	"window.h"
+
+1579667824 c:\users\5353i\documents\coding\chess\chess-engine\v1\window.h
+	"Header.h"
+

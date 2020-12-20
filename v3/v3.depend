@@ -1,0 +1,88 @@
+# depslib dependency file v1.0
+1580853078 source:c:\users\5353i\documents\coding\chess\chess-engine\v3\andyallegro.cpp
+	"AndyAllegro.h"
+
+1579719354 c:\users\5353i\documents\coding\chess\chess-engine\v3\andyallegro.h
+	"Header.h"
+	"menu.h"
+	"button.h"
+
+1579668850 c:\users\5353i\documents\coding\chess\chess-engine\v3\header.h
+	<iostream>
+	<vector>
+	<stack>
+	<queue>
+	<chrono>
+	<cmath>
+	<map>
+	<allegro5/allegro.h>
+	<allegro5/allegro_image.h>
+	<allegro5/allegro_primitives.h>
+	<allegro5/allegro_font.h>
+	<allegro5/allegro_ttf.h>
+	<allegro5/allegro_native_dialog.h>
+	<allegro5/keyboard.h>
+	<allegro5/allegro_color.h>
+	"Settings.h"
+
+1579667028 c:\users\5353i\documents\coding\chess\chess-engine\v3\settings.h
+
+1580852882 c:\users\5353i\documents\coding\chess\chess-engine\v3\menu.h
+	"Header.h"
+	"button.h"
+
+1579720430 c:\users\5353i\documents\coding\chess\chess-engine\v3\button.h
+	"Header.h"
+
+1579720430 source:c:\users\5353i\documents\coding\chess\chess-engine\v3\button.cpp
+	"button.h"
+
+1608424438 source:c:\users\5353i\documents\coding\chess\chess-engine\v3\main.cpp
+	"structs.h"
+	<iostream>
+	<fstream>
+	<map>
+	<cmath>
+	"gui.h"
+
+1608054764 c:\users\5353i\documents\coding\chess\chess-engine\v3\structs.h
+	<vector>
+
+1579720462 source:c:\users\5353i\documents\coding\chess\chess-engine\v3\menu.cpp
+	"menu.h"
+
+1579667824 source:c:\users\5353i\documents\coding\chess\chess-engine\v3\window.cpp
+	"window.h"
+
+1579667824 c:\users\5353i\documents\coding\chess\chess-engine\v3\window.h
+	"Header.h"
+
+1608424377 source:c:\users\5353i\documents\coding\chess\chess-engine\v3\board.cpp
+	"board.h"
+
+1608389646 c:\users\5353i\documents\coding\chess\chess-engine\v3\board.h
+	"defines.h"
+	"database.h"
+	<stack>
+	<vector>
+
+1608177234 c:\users\5353i\documents\coding\chess\chess-engine\v3\defines.h
+	<iostream>
+
+1608386725 source:c:\users\5353i\documents\coding\chess\chess-engine\v3\gui.cpp
+	"gui.h"
+
+1608331570 c:\users\5353i\documents\coding\chess\chess-engine\v3\gui.h
+	"board.h"
+	"AndyAllegro.h"
+
+1608176114 c:\users\5353i\documents\coding\chess\chess-engine\v3\board.cpp
+	"board.h"
+
+1608348611 c:\users\5353i\documents\coding\chess\chess-engine\v3\database.h
+	"defines.h"
+	<fstream>
+
+1608348611 source:c:\users\5353i\documents\coding\chess\chess-engine\v3\database.cpp
+	"database.h"
+

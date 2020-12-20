@@ -1,0 +1,5 @@
+# depslib dependency file v1.0
+1608336221 source:c:\users\5353i\documents\coding\chess\chess-engine\magickeygenerator\main.cpp
+	<iostream>
+	<fstream>
+

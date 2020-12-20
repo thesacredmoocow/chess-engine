@@ -2,6 +2,7 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <algorithm>
 using namespace std;
 
 //lowercase is black, uppercase is white
@@ -48,23 +49,11 @@ struct boardState
 {
     int turns = 0;
     char board[8][8];
-    /*vector<coord> wRooks;
-    vector<coord> wKnights;
-    vector<coord> wBishops;
-    vector<coord> wQueens;
-    vector<coord> wPawns;
-    coord wKing;
-
-    vector<coord> bRooks;
-    vector<coord> bKnights;
-    vector<coord> bBishops;
-    vector<coord> bQueens;
-    vector<coord> bPawns;
-    coord bKing;*/
 };
 
 
-
+float aggressive_threshold = 5;
+float risk_factor = 0.0;
 
 pair<coord, coord> decode(int m)
 {
@@ -206,7 +195,6 @@ pair<int, int> getGuards(boardState &b, coord bKing)
                 {
                     if(cCoord(toCoord(bKing.y + i*k, bKing.x + j*k)))
                     {
-                        //cout << bKing.y + i*k << " " << bKing.x + j*k << endl;
                         char currentPiece = b.board[bKing.y + i*k][bKing.x + j*k];
                         if(currentPiece != 'O')
                         {
@@ -264,7 +252,6 @@ pair<int, int> getGuards(boardState &b, coord bKing)
     return ans;
 }
 
-//first bool whether black is checked, second bool whether white is checked
 pair<int, int> isChecked(boardState &b)
 {
     pair<int, int> ans(0, 0);
@@ -384,7 +371,6 @@ pair<int, int> isChecked(boardState &b)
                 {
                     if(cCoord(toCoord(wKing.y + i*k, wKing.x + j*k)))
                     {
-                        //cout << wKing.y + i*k << " " << wKing.x + j*k << endl;
                         char currentPiece = b.board[wKing.y + i*k][wKing.x + j*k];
                         if(currentPiece != 'O')
                         {
@@ -479,7 +465,6 @@ vector<int> generateRookMoves(boardState &b, coord piece)
 vector<int> generateBishopMoves(boardState &b, coord piece)
 {
     int an = piece.y*512 + piece.x * 64;
-    //cout << piece.y << " " << piece.x << endl;
     vector<int> ans;
     coord moves[4] = {toCoord(-1, -1), toCoord(1, 1), toCoord(1, -1), toCoord(-1, 1)};
     for(int i = 0; i < 4; i++)
@@ -522,17 +507,14 @@ vector<int> generateKnightMoves(boardState &b, coord piece)
         {
             if(b.board[piece.y + knightPos[i].y][piece.x + knightPos[i].x] == 'O')
             {
-                //cout << piece.y << " " << piece.x << " " << (piece.y + knightPos[i].y) << " " << piece.x + knightPos[i].x << endl;
                 ans.push_back(an + (piece.y + knightPos[i].y)*8 + piece.x + knightPos[i].x);
             }
             else if(b.board[piece.y][piece.x] <= 'Z' && b.board[piece.y + knightPos[i].y][piece.x + knightPos[i].x] > 'Z')
             {
-                //cout << piece.y << " " << piece.x << " " << (piece.y + knightPos[i].y) << " " << piece.x + knightPos[i].x << endl;
                 ans.push_back(an + (piece.y + knightPos[i].y)*8 + piece.x + knightPos[i].x);
             }
             else if(b.board[piece.y][piece.x] >= 'a' && b.board[piece.y + knightPos[i].y][piece.x + knightPos[i].x] < 'a')
             {
-                //cout << piece.y << " " << piece.x << " " << (piece.y + knightPos[i].y) << " " << piece.x + knightPos[i].x << endl;
                 ans.push_back(an + (piece.y + knightPos[i].y)*8 + piece.x + knightPos[i].x);
             }
         }
@@ -666,15 +648,6 @@ vector<int> generateMoves(boardState &b)
                     break;
                 }
                  ans.insert(ans.end(), temp.begin(), temp.end());
-                /*cout << b.board[i][j] << endl;
-                //cout << ans.size() << endl;
-                for(int k = 0; k < temp.size(); k++)
-                {
-                    //cout << temp[k] << " ";
-                    pair<coord, coord> m = decode(temp[k]);
-                    cout << "  " << char(m.first.x + 'a') << m.first.y+1 << " to " << char(m.second.x + 'a') << m.second.y+1 << endl;
-                }
-                cout << endl;*/
             }
         }
     }
@@ -699,41 +672,6 @@ void initBoardState(boardState &b)
             b.board[i][j] = board[i][j];
         }
     }
-/*
-    b.wRooks.push_back(toCoord(0, 0));
-    b.wRooks.push_back(toCoord(0, 7));
-    b.wKnights.push_back(toCoord(0, 1));
-    b.wKnights.push_back(toCoord(0, 6));
-    b.wBishops.push_back(toCoord(0, 2));
-    b.wBishops.push_back(toCoord(0, 5));
-    b.wQueens.push_back(toCoord(0, 3));
-    b.wKing = toCoord(0, 4);
-    b.wPawns.push_back(toCoord(1, 0));
-    b.wPawns.push_back(toCoord(1, 1));
-    b.wPawns.push_back(toCoord(1, 2));
-    b.wPawns.push_back(toCoord(1, 3));
-    b.wPawns.push_back(toCoord(1, 4));
-    b.wPawns.push_back(toCoord(1, 5));
-    b.wPawns.push_back(toCoord(1, 6));
-    b.wPawns.push_back(toCoord(1, 7));
-
-    b.bRooks.push_back(toCoord(7, 0));
-    b.bRooks.push_back(toCoord(7, 7));
-    b.bKnights.push_back(toCoord(7, 1));
-    b.bKnights.push_back(toCoord(7, 6));
-    b.bBishops.push_back(toCoord(7, 2));
-    b.bBishops.push_back(toCoord(7, 5));
-    b.bQueens.push_back(toCoord(7, 3));
-    b.bKing = toCoord(7, 4);
-    b.bPawns.push_back(toCoord(6, 0));
-    b.bPawns.push_back(toCoord(6, 1));
-    b.bPawns.push_back(toCoord(6, 2));
-    b.bPawns.push_back(toCoord(6, 3));
-    b.bPawns.push_back(toCoord(6, 4));
-    b.bPawns.push_back(toCoord(6, 5));
-    b.bPawns.push_back(toCoord(6, 6));
-    b.bPawns.push_back(toCoord(6, 7));
-*/
     b.turns = 0;
 }
 
@@ -755,41 +693,6 @@ void initTestBoardState(boardState &b)
             b.board[i][j] = board[i][j];
         }
     }
-/*
-    b.wRooks.push_back(toCoord(0, 0));
-    b.wRooks.push_back(toCoord(0, 7));
-    b.wKnights.push_back(toCoord(0, 1));
-    b.wKnights.push_back(toCoord(0, 6));
-    b.wBishops.push_back(toCoord(0, 2));
-    b.wBishops.push_back(toCoord(0, 5));
-    b.wQueens.push_back(toCoord(0, 3));
-    wKing = toCoord(0, 4);
-    b.wPawns.push_back(toCoord(1, 0));
-    b.wPawns.push_back(toCoord(1, 1));
-    b.wPawns.push_back(toCoord(1, 2));
-    b.wPawns.push_back(toCoord(1, 3));
-    b.wPawns.push_back(toCoord(1, 4));
-    b.wPawns.push_back(toCoord(1, 5));
-    b.wPawns.push_back(toCoord(1, 6));
-    b.wPawns.push_back(toCoord(1, 7));
-
-    b.bRooks.push_back(toCoord(3, 4));
-    b.bRooks.push_back(toCoord(7, 7));
-    b.bKnights.push_back(toCoord(7, 1));
-    b.bKnights.push_back(toCoord(7, 6));
-    b.bBishops.push_back(toCoord(7, 2));
-    b.bBishops.push_back(toCoord(7, 5));
-    b.bQueens.push_back(toCoord(7, 3));
-    b.bKing = toCoord(7, 4);
-    b.bPawns.push_back(toCoord(6, 0));
-    b.bPawns.push_back(toCoord(6, 1));
-    b.bPawns.push_back(toCoord(6, 2));
-    b.bPawns.push_back(toCoord(6, 3));
-    b.bPawns.push_back(toCoord(6, 4));
-    b.bPawns.push_back(toCoord(6, 5));
-    b.bPawns.push_back(toCoord(6, 6));
-    b.bPawns.push_back(toCoord(6, 7));
-*/
     b.turns = 0;
 }
 
@@ -805,7 +708,7 @@ boardState movePiece(boardState &b, int m)
 
 float calcVal(boardState &b)
 {
-    float posMultiplier = 0.01;
+    float posMultiplier = 0.005;
     float ans = 0;
     float abspoints = 0;
     for(int i = 0; i < 8; i++)
@@ -816,20 +719,36 @@ float calcVal(boardState &b)
             abspoints += abs(piecePoints[b.board[i][j]]);
             if(i >= 3 && j >= 3 && i <= 4 && j <= 4)
             {
-                pair<int, int> guards = getGuards(b, toCoord(i, j));
+                /*pair<int, int> guards = getGuards(b, toCoord(i, j));
                 ans += posMultiplier*guards.first*2;
-                ans -= posMultiplier*guards.second*2;
+                ans -= posMultiplier*guards.second*2;*/
+                if(b.board[i][j] <= 'Z' && b.board[i][j] >= 'A' && b.board[i][j] != 'O')
+                {
+                    ans += posMultiplier*2;
+                }
+                if(b.board[i][j] <= 'z' && b.board[i][j] >= 'a')
+                {
+                    ans -= posMultiplier*2;
+                }
             }
             if(i >= 2 && j >= 2 && i <= 5 && j <= 5)
             {
-                pair<int, int> guards = getGuards(b, toCoord(i, j));
+                /*pair<int, int> guards = getGuards(b, toCoord(i, j));
                 ans += posMultiplier*guards.first;
-                ans -= posMultiplier*guards.second;
+                ans -= posMultiplier*guards.second;*/
+                if(b.board[i][j] <= 'Z' && b.board[i][j] >= 'A' && b.board[i][j] != 'O')
+                {
+                    ans += posMultiplier;
+                }
+                if(b.board[i][j] <= 'z' && b.board[i][j] >= 'a')
+                {
+                    ans -= posMultiplier;
+                }
 
             }
         }
     }
-    return ans / (abspoints/50);
+    return ans;
 }
 
 pair<int, float> recursiveFind(int plyLeft, boardState &b)
@@ -842,27 +761,24 @@ pair<int, float> recursiveFind(int plyLeft, boardState &b)
             pair<int, float> bestMove(0, -300);
             for(int i = 0; i < possibleMoves.size(); i++)
             {
-                //printMove(possibleMoves[i]);
                 boardState newBoard = movePiece(b, possibleMoves[i]);
-                /*for(int i = 0; i < 8; i++)
+                if(!isChecked(newBoard).second)
                 {
-                    for(int j = 0; j < 8; j++)
+                    float newScore = calcVal(newBoard);
+                    float risk = abs(1-abs(newScore/bestMove.second));
+                    bool takeRisk = false;
+                    if(risk < risk_factor)
                     {
-                        cout << b.board[i][j];
+                        if(rand() % 100 > (100 * risk/risk_factor))
+                        {
+                            takeRisk = true;
+                        }
                     }
-                    cout << " ";
-                    for(int j = 0; j < 8; j++)
+                    if(takeRisk || newScore > bestMove.second)
                     {
-                        cout << newBoard.board[i][j];
+                        bestMove.first = possibleMoves[i];
+                        bestMove.second = newScore;
                     }
-                    cout << endl;
-                }*/
-                float newScore = calcVal(newBoard);
-                //cout << newScore << endl;
-                if(newScore > bestMove.second)
-                {
-                    bestMove.first = possibleMoves[i];
-                    bestMove.second = newScore;
                 }
             }
             return bestMove;
@@ -873,11 +789,23 @@ pair<int, float> recursiveFind(int plyLeft, boardState &b)
             for(int i = 0; i < possibleMoves.size(); i++)
             {
                 boardState newBoard = movePiece(b, possibleMoves[i]);
-                float newScore = calcVal(newBoard);
-                if(newScore < bestMove.second)
+                if(!isChecked(newBoard).first)
                 {
-                    bestMove.first = possibleMoves[i];
-                    bestMove.second = newScore;
+                    float newScore = calcVal(newBoard);
+                    float risk = abs(1-abs(newScore/bestMove.second));
+                    bool takeRisk = false;
+                    if(risk < risk_factor)
+                    {
+                        if(rand() % 100 > (100 * risk/risk_factor))
+                        {
+                            takeRisk = true;
+                        }
+                    }
+                    if(takeRisk || newScore < bestMove.second)
+                    {
+                        bestMove.first = possibleMoves[i];
+                        bestMove.second = newScore;
+                    }
                 }
             }
             return bestMove;
@@ -892,11 +820,24 @@ pair<int, float> recursiveFind(int plyLeft, boardState &b)
             for(int i = 0; i < possibleMoves.size(); i++)
             {
                 boardState newBoard = movePiece(b, possibleMoves[i]);
-                float newScore = recursiveFind(plyLeft-1, newBoard).second;
-                if(newScore > bestMove.second)
+                if(!isChecked(newBoard).second)
                 {
-                    bestMove.first = possibleMoves[i];
-                    bestMove.second = newScore;
+                    float newScore = recursiveFind(plyLeft-1, newBoard).second;
+                    float aggressiveScore = calcVal(newBoard);
+                    float risk = abs(1-abs(newScore/bestMove.second));
+                    bool takeRisk = false;
+                    if(risk < risk_factor)
+                    {
+                        if(rand() % 100 > (100 * risk/risk_factor))
+                        {
+                            takeRisk = true;
+                        }
+                    }
+                    if(takeRisk || (newScore > bestMove.second) || ((aggressiveScore - bestMove.second)/(newScore - bestMove.second) > aggressive_threshold))
+                    {
+                        bestMove.first = possibleMoves[i];
+                        bestMove.second = newScore;
+                    }
                 }
             }
             return bestMove;
@@ -907,34 +848,29 @@ pair<int, float> recursiveFind(int plyLeft, boardState &b)
             for(int i = 0; i < possibleMoves.size(); i++)
             {
                 boardState newBoard = movePiece(b, possibleMoves[i]);
-                float newScore = recursiveFind(plyLeft-1, newBoard).second;
-                if(newScore < bestMove.second)
+                if(!isChecked(newBoard).first)
                 {
-                    bestMove.first = possibleMoves[i];
-                    bestMove.second = newScore;
+                    float newScore = recursiveFind(plyLeft-1, newBoard).second;
+                    float aggressiveScore = calcVal(newBoard);
+                    float risk = abs(1-abs(newScore/bestMove.second));
+                    bool takeRisk = false;
+                    if(risk < risk_factor)
+                    {
+                        if(rand() % 100 > (100 * risk/risk_factor))
+                        {
+                            takeRisk = true;
+                        }
+                    }
+                    if(takeRisk || (newScore < bestMove.second) || ((aggressiveScore - bestMove.second)/(newScore - bestMove.second) < -aggressive_threshold))
+                    {
+                        bestMove.first = possibleMoves[i];
+                        bestMove.second = newScore;
+                    }
                 }
             }
             return bestMove;
         }
     }
-}
-
-void keyUpdate(ALLEGRO_EVENT *event)
-{
-    //handle keyboard presses here
-    //cout << "Keyboard Event" << endl;
-}
-
-void mouseUpdate(ALLEGRO_EVENT *event)
-{
-    //handle mouse events here
-    //cout << "Mouse Event" << endl;
-}
-
-void frameUpdate(ALLEGRO_EVENT *event)
-{
-    //draw each frame here
-
 }
 
 void drawBoard(boardState &b)
@@ -1025,75 +961,94 @@ void drawBoard(boardState &b)
     //al_draw_bitmap(pieces, 0, 0, 0);
     al_flip_display();
 }
-void btnFunction()
+
+string f = "a0";
+string t = "a0";
+int allegroMove = 0;
+void mouseUpdate(ALLEGRO_EVENT *event)
 {
-    //cout << "Button Pressed" << endl;
+    if(event->type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
+    {
+        cout << event->mouse.x << event->mouse.y << endl;
+        int mousey = 7-(event->mouse.y/100);
+        int mousex = event->mouse.x/100;
+        if(f == "a0")
+        {
+            f[0] = char(mousex + 'a');
+            f[1] = char(mousey + '1');
+            //cout << char(mousex + 'a') << " " << char(mousey + '1') << endl;
+        }
+        else
+        {
+            t[0] = char(mousex + 'a');
+            t[1] = char(mousey + '1');
+            cout << char(mousex + 'a') << " " << char(mousey + '1') << endl;
+        }
+    }
 }
+boardState b;
+void frameUpdate(ALLEGRO_EVENT *event)
+{
+    drawBoard(b);
+}
+
 
 int main()
 {
+    srand(0);
     AndyAllegro test;
     test.createWindow(800, 800, 60);
     test.setTitle("chess board");
 
     test.setScreenFunction(frameUpdate);
-    test.setKeyFunction(keyUpdate);
     test.setMouseFunction(mouseUpdate);
 
     pieces = al_load_bitmap("pieces.png");
 
-    boardState b;
+
     initBoardState(b);
     initPiecePoints(piecePoints);
-    cout << getGuards(b, toCoord(1, 3)).first << " " <<  getGuards(b, toCoord(2, 3)).second << endl;
-    //cout << calcVal(b) << endl;
-    //pair<bool, bool> test = isChecked(b);
-    //cout << test.first << " " << test.second << endl;
-    //vector<int> moves = generateMoves(b);
-    //cout << moves.size() << endl;
-    //cout << calcVal(b) << endl;
-    //pair<int, float> bestMove = recursiveFind(3, b);
-    //printMove(bestMove.first);
-   // cout <<  bestMove.second << endl;
-    //b = movePiece(b, bestMove.first);
-    /*while(1)
-    {
-        string from, to;
-        cin >> from;
-        cin >> to;
-        if(from == "q")
-        {
-            break;
-        }
-        else
-        {
-            pair<coord, coord> userMove(toCoord(from[1]-'1', from[0]-'a'), toCoord(to[1]-'1', to[0]-'a'));
-            b = movePiece(b, encode(userMove));
-            pair<int, float> bestMove = recursiveFind(3, b);
-            printMove(bestMove.first);
-            //cout <<  bestMove.second << endl;
-            b = movePiece(b, bestMove.first);
-        }
-
-
-    }*/
+    //cout << getGuards(b, toCoord(1, 3)).first << " " <<  getGuards(b, toCoord(2, 3)).second << endl;
     while(1)
     {
         drawBoard(b);
 
-        pair<int, float> bestMove = recursiveFind(2, b);
-        string a;
-        //cin >> a;
+        pair<int, float> bestMove = recursiveFind(3, b);
         printMove(bestMove.first);
         //cout <<  bestMove.second << endl;
         b = movePiece(b, bestMove.first);
+        drawBoard(b);
         cout << " " << calcVal(b) << endl;
         pair<int, int> check = isChecked(b);
-        cout << " " << check.first << " " << check.second << endl;
+        cout << " " << bestMove.first << " " << bestMove.second << endl;
         if ((bestMove.second < -150) || (bestMove.second > 150))
         {
             break;
         }
+        vector<int> validMoves = generateMoves(b);
+        f = "a0";
+        t = "a0";
+        while(true)
+        {
+            test.update();
+            if((f != "a0")&&(t!="a0"))
+            {
+                if(find(validMoves.begin(), validMoves.end(), (f[1]-'1')*512 + (f[0]-'a')*64 + (t[1]-'1')*8 + t[0]-'a') != validMoves.end())
+                {
+                    break;
+                }
+                else
+                {
+                    f = "a0";
+                    t = "a0";
+                }
+            }
+
+        }
+        b = movePiece(b, (f[1]-'1')*512 + (f[0]-'a')*64 + (t[1]-'1')*8 + t[0]-'a');
+        //coord fr = toCoord(f[0]-'1', f[1]-'a');
+        //coorf to = toCoord()
     }
+    //al_rest(10);
     return 0;
 }

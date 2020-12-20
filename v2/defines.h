@@ -7,6 +7,8 @@
 //color IDs
 #define WHITE 0
 #define BLACK 1
+#define GREEN al_map_rgb(80,200,80)
+#define BLUE al_map_rgb(80,80,200)
 
 //piece IDs
 #define ROOK 4
@@ -27,4 +29,6 @@
 #define D270 6
 #define D315 7
 
-#define GREEN al_map_rgb(80,200,80)
+
+
+#define imagePath "pieces.png"
